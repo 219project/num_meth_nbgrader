@@ -102,7 +102,7 @@ Make assignment -- Generate -- Release -- Collect -- Grade -- Feedback
 Расширение, позволяющее работать не через командную строку, а прямо в Jupyter. 
 
 Если все расширения из пункта 1 были установлены верно(если вы устанавливаете nbgrader локально), в Jupyter появится вкладка:
-\includegraphics[width=\textwidth]{formgrader_tab1}
+v
 \paragraph{Возможная проблема (не для сервера)}
 Если вы видите табличку \grqq The course id has not been set in nbgrader\underline{ }config.py\grqq, а в графе formgrader \grqq No data available in table\grqq , значит, вы запустили Jupyter находясь не в корневой папке курса.
 \subsection{Создание задания}
@@ -262,8 +262,8 @@ c.Exchange.root = "/tmp/exchange" например
 Проверить список студентов можно с помощью команды  nbgrader db student list в командной строке.
 Существует несколько способов добавить в класс студента:
 \subsection{nbgrader\_config.py}
-
-В файле nbgrader\_config.py написать
+Главный файл, определяющий почти все свойства курса. В нем хранятся списки студентов, заданий, часть настроек сервера и другие данные.
+Например, в файле nbgrader\_config.py нужно написать
 \begin{verbatim}
 c.CourseDirectory.db_students = [
     dict(id="vivanov", first_name="Vovochka", last_name="Ivanov"),
@@ -285,6 +285,148 @@ nbgrader db student add vivanov --last-name=Ivanov --first-name=Vovochka #add st
 Этот метод работает, но файл nbgrader\_config.py не меняется.
 
 Удалить студента можно с помощью командной строки: nbgrader db student remove vivanov.
+\section{Работа с сервером}
+
+Для работы с сервером не нужно устанавливать локально ничего, достаточно иметь доступ к публичному ip. Для сервера есть 3 разные роли: администратор, учитель(grader) и студент.
+
+\subsection{Админ}
+\subsubsection{Начало работы}
+Для правильной работы сервера нужно разместить 3 файла nbgrader\_config.py:
+
+Первый будет содержать исключительно параметры курса (без информации о пользователях). Самая важный параметр -- имя курса, без него ниего работать не будет. Он должен храниться в папке с курсом.
+\begin{verbatim}
+c = get_config()
+c.CourseDirectory.course_id = "TestCourse"
+#Адрес обменной папки
+c.Exchange.root = "/srv/nbgrader/exchange"
+# Список заданий
+c.CourseDirectory.db_assignments = [
+    dict(name="quadratic"), dict(name="Numpy"), dict(name="Newton_fixed_pt"), dict(name="Monte_Carlo"), dict(name="LU_pivoting"), dict(name="Jacobi_Seidel"), dict(name="IVP_ODE"), dict(name="Interp_approx"), dict(name="Householder_QR"), dict(name="Calculus"), dict(name="Advanced_integrals")
+]
+
+#Данные, которые будут заполнять студенты(по дефолту имя фамилия, см скрин ниже)
+#Файл по этому адресу будет вставляться отдельной ячейкой в начале каждой домашки
+c.IncludeHeaderFooter.header = "source/header.ipynb"
+
+#Настройки сервера
+c.FormgradeApp.ip = "51.68.81.44"
+c.FormgradeApp.port = 5000
+c.HubAuth.hub_base_url = "http://51.68.81.44"
+c.HubAuth.notebook_url_prefix = "TestCourse"
+
+#Список учителей
+c.HubAuth.graders = ["jupyter-polinvin"]
+\end{verbatim}
+
+\includegraphics[width=\textwidth]{header}
+
+Второй файл nbgrader\_config должен находится в том месте, откуда запускается jupyter notebook ($\sim$\slash.jupyter\slash nbgrader\_config.py ), и должен содержать ссылку на первый файл.
+
+\begin{verbatim}
+c = get_config()
+c.CourseDirectory.root = "/path/to/course/directory"
+\end{verbatim}
+
+Третий файл глобальный, необходим именно для правильной работы сервера. Разместить его нужно там, где сервер ожидает его обнаружить, список этих путей можно определить с помощью команды jupyter  -paths. В этом файле нужно разместить списки студентов и заданий, а также путь к обменной папке.
+
+\begin{verbatim}
+с = get_config()
+
+# Список студентов
+c.CourseDirectory.db_students = [
+    dict(id="jupyter-maxkway", first_name="Maxim", last_name="Shishkin"),
+    dict(id="jupyter-grader1")
+]
+
+#Список учителей
+c.HubAuth.graders = ["jupyter-polinvin"]
+\end{verbatim}
+
+\subsubsection{Добавление студентов}
+Можно добавить вручную и через командную строку. 
+
+Для добавления вручную нужно зайти в командную панель (Control panel, в правом верхнем углу) а затем во вкладку admin
+
+\includegraphics[width=\textwidth]{users}
+
+Нажав на кнопку add users можно добавить сколько угодно новых пользователей, вводя каждый ник на новой строке. Отдельной галочкой можно наделить их правами администратора.
+
+Через командную строку можно добавить студенттов, создав группу(это уддобно, если работа идет c классом). Я такого не делала, но вот инструкция от Kristen M. Thyng Ph.D.
+\begin{verbatim}
+sudo groupadd pythonfall2016  # create group
+# home directory is on a separate drive on this workstation
+sudo useradd -G pythonfall2016 -d /d2/home/student_username_here student_username_here
+sudo passwd username  # give them each a good password
+\end{verbatim}
+
+Настройка jupyterhub\_config:
+\begin{verbatim}
+c.Spawner.notebook_dir = '~/notebooks'
+\end{verbatim}
+
+Настройка nbgrader\_config:
+\begin{verbatim}
+ import os
+
+    c = get_config()
+
+    # You only need this if you are running nbgrader on a shared
+    # server set up.
+    c.NbGrader.course_id = "course_name"
+
+    # Update this list with other assignments you want
+    c.NbGrader.db_assignments = [dict(name="hw1")]
+
+    # Change the students in this list with that actual students in
+    # your course
+    c.NbGrader.db_students = [
+        dict(id="pythontest", first_name="P", last_name="pythontest")
+    ]
+
+    #------------------------------------------------------------------------------
+    # FormgradeApp configuration
+    #------------------------------------------------------------------------------
+
+    # IP address for the server
+    c.FormgradeApp.ip = "127.0.0.1"
+    # Port for the server
+    c.FormgradeApp.port = 5000
+    # Authenticator used in all formgrade requests.
+    c.FormgradeApp.authenticator_class = "nbgrader.auth.hubauth.HubAuth"
+
+    # from https://groups.google.com/forum/#!topic/jupyter/oTRM4XuRUew
+    # for running with https
+    # this line made it so the page was rendered nicely and actually connected
+    # to the class database properly (instead of the localhost)
+    c.HubAuth.hub_base_url = "https://copano.tamu.edu:8000"
+    c.HubAuth.notebook_url_prefix = "course_name"
+    c.HubAuth.graders = ["my_user_name"]
+    c.HubAuth.hubapi_token = os.environ['JPY_API_TOKEN']
+
+
+    # The nbgrader exchange directory writable to everyone. MUST be preexisting.
+    # this is the default location for the exchange directory
+    c.TransferApp.exchange_directory = '/srv/nbgrader/exchange'
+\end{verbatim}
+
+
+\subsection{Студент}
+Студенту будет доступна путая корневая папка. В разделе Assignments во вкладке released assignments он увидит все задания, которые были выложены. Нажимая на кнопку Fetch он скачивает версию для релиза себе в корневую папку. 
+
+\includegraphics[width=\textwidth]{assignment_list_released}
+
+После этого он может делать задания, не создавая новых фалов и не переименновывая старые. После выполнения работы он должен сохранить ноутбук и в разделе Assignments нажать кнопку submit. Таким образом он сохраняет свою работу и время ее выполнения. Перед сабмиттом можно проверить свое решение, нажав кнопку validate. Nbgrader выведет обвалившиеся ячейки.
+
+\includegraphics[width=\textwidth]{assignment_list_downloaded_expanded}
+
+Сабмитов он может сделать сколько угодно, но когда учитель забирает задания с помощью функции collect, отправится последняя из версий выполненных до дедлайна. Возможна ситуация, когда после проверки учитель предлагает исправить работу. В таком случае можно снова забрать последнюю версию студента и проверить то же задание снова.
+
+\includegraphics[width=\textwidth]{assignment_list_submitted_again}
+
+Студенту не следует изменять названия функций и их входные параметры, а также удалять или добавлять ячейки, писать в ячейках не предназначенных для ответа, в противном слуае тесты обвалятся, либо работа не проверится вовсе.
+
+\includegraphics[width=\textwidth]{assignment_list_submit_error}
+
 \section{Random useful things}
 
 \paragraph{}
