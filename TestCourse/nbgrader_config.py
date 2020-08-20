@@ -17,7 +17,8 @@ c.CourseDirectory.db_assignments = [
 # Change the students in this list with that actual students in
 # your course
 c.CourseDirectory.db_students = [
-    dict(id="jupyter-maxkway", first_name="Maxim", last_name="Shishkin")
+    dict(id="jupyter-maxkway", first_name="Maxim", last_name="Shishkin"),
+    dict(id="jupyter-grader1")
 ]
 
 c.IncludeHeaderFooter.header = "source/header.ipynb"
