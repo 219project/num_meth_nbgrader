@@ -1,1 +1,4 @@
-Если изменяется количество ячеек, сгенерировать снова при наличии сабишнов нельзя: db remove ass, потом удалить все сабмитеде грэйдед и т.д, потом только генерить
+jupyterhub смена пароля
+sudo tljh-config set <property-path> <value>
+ovh S1-4 model under Shared resources 4GB RAM, 1 vCores and 20GB SSD.
+Не забывать делать reload после изменения tljh-config
