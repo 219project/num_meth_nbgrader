@@ -17,14 +17,14 @@
 \begin{document}
 \maketitle
 \tableofcontents
-\section{Установка. Для работы с сервером не нужно} 
+\section{Установка.\small \textit{ Для работы с сервером не нужно}} 
 
 Для установки nbgrader откройте терминал и введите команду:
 \begin{verbatim}
 pip install nbgrader
 \end{verbatim}
-или:
-\begin{verbatim}-
+или
+\begin{verbatim}
 conda install jupyter
 conda install -c conda-forge nbgrader,
 \end{verbatim}
@@ -46,7 +46,7 @@ jupyter serverextension enable --sys-prefix --py nbgrader
 \begin{verbatim}
 nbgrader quickstart course_id 
 \end{verbatim}
-создаст курс с названием course\underline{ }id и наполнением из 2 заданий и 2 студентов. На примере шаблона проще всего разобраться в работе nbgarder\textquotesingle a
+создаст курс с названием course\underline{ }id и наполнением из 2 заданий и 2 студентов. На примере шаблона проще всего разобраться в работе nbgarder'a
 \subsection{Создание своего курса}
 
 Создается папка со структурой, описанной в п.3, файлом nbgrader\underline{ }config.py и базой данных. Мне кажется, удобнее  редактировать шаблон, т.к. повторить вручную всю структуру курса довольно сложно.
