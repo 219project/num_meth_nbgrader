@@ -257,6 +257,35 @@ c.Exchange.root = "/tmp/exchange" например
 А вот с отправкой фидбэка есть проблемы. Из-за отсутствия таймстэмпов(см) nbgrader отказывается перемещать файлы в обменную папку. Пока что есть два варианта решения: либо руками копировать папку фидбэк в обменную папку (а точнее exchange/\{course\_id\}/feedback), либо создавать таймстэмпы вручную, но я пока не знаю, как)
 \section{Работа с базой данных}
 
+\subsection{Удаление задания}
+1. Unrelease 
+\begin{verbatim}
+nbgrader list --remove <assignment_name>
+\end{verbatim}
+2. База данных 
+\begin{verbatim}
+nbgrader db assignment remove <assignment_name>
+\end{verbatim}
+3. Чистим папку с релизами
+\begin{verbatim}
+rm -r release/<assignment_name>
+\end{verbatim}
+4. Удаляем директорию 
+\begin{verbatim}
+rm -r source/<assignment_name>
+\end{verbatim}
+5. Удаляем папку с заданием
+\begin{verbatim}
+rm -r submitted/*/<assignment_name>
+\end{verbatim}
+6. Удаляем результаты проверки
+\begin{verbatim}
+rm -r autograded/*/<assignment_name>
+\end{verbatim}
+7. Удаляем фидбэки
+\begin{verbatim}
+rm -r feedback/*/<assignment_name>
+\end{verbatim}
 \subsection{Студенты}
 
 Проверить список студентов можно с помощью команды  nbgrader db student list в командной строке.
@@ -436,6 +465,7 @@ c.Spawner.notebook_dir = '~/notebooks'
 Чтобы обрабатывать эту ошибку, создатели nbgrader советуют добавлять в каждый ноутбук ячейку
 \begin{verbatim} 
 import IPython
-assert IPython.version_info[0] >= 3, "Your version of IPython is too old, please update it."
+assert IPython.version_info[0] >= 3,
+"Your version of IPython is too old, please update it."
 \end{verbatim} 
 \end{document}
