@@ -23,12 +23,6 @@ c.CourseDirectory.db_students = [
 
 c.IncludeHeaderFooter.header = "source/header.ipynb"
 
-c.FormgradeApp.ip = "51.68.81.44"
-c.FormgradeApp.port = 5000
-c.HubAuth.hub_base_url = "http://51.68.81.44"
-c.HubAuth.notebook_url_prefix = "TestCourse"
-c.HubAuth.graders = ["jupyter-polinvin"]
-c.HubAuth.hubapi_token = os.environ['JPY_API_TOKEN']
 ###############################################################################
 # End additions by nbgrader quickstart
 ###############################################################################
