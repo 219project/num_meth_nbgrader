@@ -1,0 +1,34 @@
+assignment,duedate,timestamp,student_id,last_name,first_name,email,raw_score,late_submission_penalty,score,max_score
+Advanced_integrals,,,jupyter-maxkway,,,,0.0,0.0,0.0,20.0
+Advanced_integrals,,,grader1,,,,0.0,0.0,0.0,20.0
+Advanced_integrals,,,jupyter-grader1,,,,0.0,0.0,0.0,20.0
+Calculus,,,jupyter-maxkway,,,,0.0,0.0,0.0,20.0
+Calculus,,,grader1,,,,0.0,0.0,0.0,20.0
+Calculus,,,jupyter-grader1,,,,0.0,0.0,0.0,20.0
+Householder_QR,,,jupyter-maxkway,,,,0.0,0.0,0.0,9.0
+Householder_QR,,,grader1,,,,0.0,0.0,0.0,9.0
+Householder_QR,,,jupyter-grader1,,,,0.0,0.0,0.0,9.0
+IVP_ODE,,,jupyter-maxkway,,,,0.0,0.0,0.0,10.0
+IVP_ODE,,,grader1,,,,0.0,0.0,0.0,10.0
+IVP_ODE,,,jupyter-grader1,,,,0.0,0.0,0.0,10.0
+Interp_approx,,,jupyter-maxkway,,,,0.0,0.0,0.0,10.0
+Interp_approx,,,grader1,,,,0.0,0.0,0.0,10.0
+Interp_approx,,,jupyter-grader1,,,,0.0,0.0,0.0,10.0
+Jacobi_Seidel,,,jupyter-maxkway,,,,0.0,0.0,0.0,10.0
+Jacobi_Seidel,,,grader1,,,,0.0,0.0,0.0,10.0
+Jacobi_Seidel,,,jupyter-grader1,,,,0.0,0.0,0.0,10.0
+LU_pivoting,,,jupyter-maxkway,,,,0.0,0.0,0.0,10.0
+LU_pivoting,,,grader1,,,,0.0,0.0,0.0,10.0
+LU_pivoting,,,jupyter-grader1,,,,0.0,0.0,0.0,10.0
+Monte_Carlo,,,jupyter-maxkway,,,,0.0,0.0,0.0,6.0
+Monte_Carlo,,,grader1,,,,0.0,0.0,0.0,6.0
+Monte_Carlo,,,jupyter-grader1,,,,0.0,0.0,0.0,6.0
+Newton_fixed_pt,,,jupyter-maxkway,,,,0.0,0.0,0.0,13.0
+Newton_fixed_pt,,,grader1,,,,0.0,0.0,0.0,13.0
+Newton_fixed_pt,,,jupyter-grader1,,,,0.0,0.0,0.0,13.0
+Numpy,,,jupyter-maxkway,,,,0.0,0.0,0.0,10.0
+Numpy,,,grader1,,,,0.0,0.0,0.0,10.0
+Numpy,,2020-08-19 13:23:11.116939,jupyter-grader1,,,,0.0,0.0,0.0,10.0
+quadratic,,2020-08-03 14:53:03.416194,jupyter-maxkway,,,,2.0,0.0,2.0,3.0
+quadratic,,,grader1,,,,0.0,0.0,0.0,3.0
+quadratic,,,jupyter-grader1,,,,0.0,0.0,0.0,3.0
