@@ -6,6 +6,7 @@
 \usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
 \usepackage{verbatim}
 \usepackage{textcomp}
+\usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{hyperref}
 \definecolor{urlcolor}{HTML}{799B03}
@@ -17,7 +18,12 @@
 \begin{document}
 \maketitle
 \tableofcontents
-\section{Установка.\small \textit{ Для работы с сервером не нужно}} 
+\section{Условные обозначения}
+
+\paragraph{С} -- Данный раздел относится только для работы с сервером.
+\paragraph{$\{$ assignment$\_$id $\}$} -- название конкретного задания, например, quadratic.
+
+\section{Установка} 
 
 Для установки nbgrader откройте терминал и введите команду:
 \begin{verbatim}
@@ -29,6 +35,7 @@ conda install jupyter
 conda install -c conda-forge nbgrader,
 \end{verbatim}
 если вы используете анаконду.
+
 
 Для получения доступа к возможностям учителя, 
 необходимо установить расширения:
@@ -49,47 +56,52 @@ nbgrader quickstart course_id
 создаст курс с названием course\underline{ }id и наполнением из 2 заданий и 2 студентов. На примере шаблона проще всего разобраться в работе nbgarder'a
 \subsection{Создание своего курса}
 
-Создается папка со структурой, описанной в п.3, файлом nbgrader\underline{ }config.py и базой данных. Мне кажется, удобнее  редактировать шаблон, т.к. повторить вручную всю структуру курса довольно сложно.
+Создается папка со структурой, описанной в п.3 и файлом nbgrader\underline{ }config.py. Удобнее создать и редактировать шаблон, т.к. повторить вручную всю структуру курса довольно сложно.
 \section{Структура}
-\subsection{Команды}
 
-Команды nbgrader строятся следующим образом:
-\begin{verbatim}
-{course_directory}/{nbgrader_step}/{student_id}/{assignment_id}/{notebook_id}.ipynb
-\end{verbatim}
-course\underline{ }directory -- корневая папка, в которой хранится все (информация о классе, заданиях и т.д.)
-
-nbgrader\underline{ }step -- команда (проверить, забрать, раздать задания и т.д.). Есть тонкости с тем, где запускать команды и где будет видно их результат. Далее подробнее.
-
-*\underline{ }id можно заменить звездочкой, если нужно выполнить команду для всех элементов.
-\subsection{Вид}
-\subsubsection{Учитель}
+\subsection{Учитель}
 Структура nbgrader'a устроена так: есть две папки: корневая (couse\underline{ }directory) и обменная (exchange). Корневая папка содержит в себе информацию о курсе, учениках, заданиях. В ней хранятся решения преподавателя, и к ней доступа у учеников нет.
 
-\includegraphics[width=\textwidth]{grader_root_directory}
+\includegraphics[width=0.8\textwidth]{grader_root_directory}
 
-Обменная папка создана для обмена между учениками и преподавателем, в ней хранятся: а) Выложенные задания учителя без решений б)Решения студентов в)Фидбэки учителя и nbgrader на каждое задание каждого ученика. При работе с сервером напрямую в нее доступа ни у кого нет.
+\paragraph{Зачем нужна папка exchange}\label{exchange_why}
+Обменная папка создана для обмена между учениками и преподавателем, в ней хранятся:  а)Решения студентов б)Фидбэки на каждое задание каждого ученика. Подробнее о том,где она находится и как устроена, см. \ref{exchange}
 
-\paragraph{Для работы без сервера}
-Для работы со сторонним облаком вроде Dropbox студенты и учитель должны поставить nbgrader локально. "Студенческая" версия ставится в две строчки и требует только анаконду и питон версии не ниже 3(раздел 7). Можно установить на почти любую операционную систему, но как показала практика, не на 32-битную.
 
- Основная проблема, с которой столкнется преподаватель, если у учеников не стоит nbgrader, это безумные таймстемпы, без которых nbgrader не будет проверять задания и отсылать фидбэки. Пока я не нашла способа отключить их, поэтому, если ученики не ставят себе nbgrader, преподавателю придется таймстемпы генерировать с помощью какого-то скрипта. 
+ Основная проблема, с которой столкнется преподаватель, если у учеников не стоит nbgrader, это таймстемпы, без которых nbgrader не будет проверять задания и отсылать фидбэки. Для решения этого вопроса нужно использовать $submit\_homeworks\_script.py$. В качестве входных аргументов скрипт принимает адрес папки, в которой лежат сданные работы студентов по конкретному заданию в формате:
+ \newline
+ ${\{assignment\_id\}\_exercise\_\{student\_id\}.*}$, а также адрес exchange$/$inbound, куда будут помещены работы с нужной структурой.
+ 
 
 \paragraph{Что есть в папке курса}
 
-gradebook.db --  База данных типа sQlite database, находится в \begin{verbatim} {course_directory}/gradebook.db.\end{verbatim}
+gradebook.db --  База данных типа sQlite database, находится в $\{course\_directory\}/gradebook.db$
 Внутрь нее лезть обычно необходимости нет, nbgrader все манипуляции выполняет сам. 
 
-nbgrader\underline{ }config.py -- также находится в корневой папке курса. Хранит всю информацию о курсе, связанную с базой данных(адрес обменной папки, информация об учениках и т.д)
+$nbgrader\_config.py$ также находится в корневой папке курса. Хранит всю информацию о курсе, связанную с базой данных (адрес обменной папки, информация об учениках и т.д)
 
 Например, 
 \begin{verbatim}
 c.CourseDirectory.course_id = "course101" -- метод, задающий id курса
 \end{verbatim}
 
-\subsubsection{Студент}
+\subsection{Студент}
 У студента тоже есть корневая папка, соответствующая курсу (можно подписаться на нескольно разных курсов,тогда и корневых папок будет несколько). Однако в ней отображаются только те задания, на которые студент подписался (функция fetch). 
-\includegraphics[width=\textwidth]{student_root_directory}
+
+\includegraphics[width=0.8\textwidth]{student_root_directory}
+
+\section{Команды}
+
+Команды nbgrader строятся следующим образом:
+\begin{verbatim}
+{course_id}/{nbgrader_step}/{student_id}/{assignment_id}/{notebook_id}.ipynb
+\end{verbatim}
+
+$course\_directory$ -- корневая папка, в которой хранится все (информация о классе, заданиях и т.д.)
+
+$nbgrader\_step$ -- команда (проверить, забрать, раздать задания и т.д.). Есть тонкости с тем, где запускать команды и где будет видно их результат. Далее подробнее.
+
+$\_id$ можно заменить звездочкой, если нужно выполнить команду для всех элементов.
 
 \section{Работа с nbgrader}
 
@@ -101,28 +113,49 @@ Make assignment -- Generate -- Release -- Collect -- Grade -- Feedback
 
 Расширение, позволяющее работать не через командную строку, а прямо в Jupyter. 
 
-Если все расширения из пункта 1 были установлены верно(если вы устанавливаете nbgrader локально), в Jupyter появится вкладка:
-v
+Если все расширения из пункта 1 были установлены верно, в Jupyter появится вкладка:
+
+\includegraphics[width=0.8\textwidth]{formgrader_tab}
+
 \paragraph{Возможная проблема (не для сервера)}
-Если вы видите табличку \grqq The course id has not been set in nbgrader\underline{ }config.py\grqq, а в графе formgrader \grqq No data available in table\grqq , значит, вы запустили Jupyter находясь не в корневой папке курса.
+
+Если вы видите табличку \grqq The course id has not been set in nbgrader\underline{ }config.py\grqq, а в графе formgrader \grqq No data available in table\grqq , значит, вы запустили Jupyter, находясь не в корневой папке курса.
+
 \subsection{Создание задания}
 \subsubsection{С помощью Formgrader}
 
-Здесь все просто: нажимаете +add assigment, добавляете имя и время дедлайна(опционально).
+Здесь все просто: нажимаете +add assignment, добавляете имя и, если неободимо, время дедлайна.
 
-\includegraphics[width=\textwidth]{formgrader_tab2}
+\includegraphics[width=0.8\textwidth]{formgrader_tab2}
+
 В таблице formgrader появится имя задания, в эту папку нужно поместить ноутбуки с задачами (их может быть несколько)
 (Зайти в папку можно кликнув на имя в таблице)
 \subsubsection{Командная строка}
 
-Все задания, созданные вами, но еще не опубликованные, хранятся в папке курса в разделе source, поэтому для добавления задания с названием assigment\_id можно просто создать папку course\_id/source/assigment\_id и в нее помеситить задачи, однако тогда надо обновить соответствующую строку в nbgrader\_config.py.
+Все созданные задания (не обязательно опубликованные), хранятся в папке курса в разделе source, поэтому для добавления задания с названием $\{assignment\_id\}$ нужно:
+
+\begin{enumerate}
+    \item Создать папку $mkdir course\_id/source/assignment\_id$
+    \item Поместить в нее задания
+    \item Добавить задание в базу данных $nbgrader db assignment add assignment\_id$
+\end{enumerate}
+
+просто 
 \subsection{Добавление тестов}
 
-Для того, чтобы сделать задачи удобоваримыми для nbgrader, нужно добавить тесты и ответы к ним.
-\paragraph{Важно}Nbgrader прячет от студентов решения и тесты, если использовать соответствующие бракеты. Все бракеты и их содержимое будут скрыты от студента и заменены на фразы типа  \grqqВведите решение\grqq.
-В ноутбуке с заданием нужно нажать View -- Cell Toolbar: откроются все возможности nbgrader.
+Для того, чтобы сделать задачи удобоваримыми для nbgrader, нужно адаптировать вид ноутбука, присвоив каждой ячейке "роль", например, тесты для автопроверки -- "autograded tests".
 
-Нажмите Create Assigment. В правом углу каждой ячейки появится окошко с выбором вида этой ячейки, а после выбора появится id этой ячейки (по этим id nbgrader будет ориентироваться при проверке и прятать нужные ячейки от студентов при релизе). Слева от id появится ячейка с количеством баллов за задание. Ячейки, подсвечивающиеся синим, не будут доступны студентам в своем первоначальном виде.
+\paragraph{Важно}
+
+Nbgrader прячет от студентов решения и тесты, если использовать соответствующие бракеты. Все бракеты и их содержимое будут скрыты от студента и заменены на фразы типа  \grqqВведите решение\grqq.
+
+\paragraph{Начало работы}
+
+В ноутбуке с заданием нужно нажать $View -- Cell\ Toolbar$: откроются все возможности nbgrader.
+
+\includegraphics[width=0.8\textwidth]{assignment_toolbar}
+
+Нажмите Create Assignment. В правом углу каждой ячейки появится окошко с выбором вида этой ячейки, а после выбора появится id этой ячейки (по этим id nbgrader будет ориентироваться при проверке и прятать нужные ячейки от студентов при релизе; можно нназначать свои id, можно оставить те, которые генерируются автоматически). Слева от id появится ячейка с количеством баллов за задание. Ячейки, подсвечивающиеся синим, не будут доступны студентам в своем \textit{первоначальном} виде.
 
 \subsubsection{Read only}
 
@@ -133,14 +166,20 @@ v
 При генерации задания содержимое ячейки записывается в базу данных. Во время проверки nbgrader заменяет содержимое этой ячейки в файле студента на то, что было сохранено в базе данных на момент релиза. То есть например, вариант удалить ячейку с тестами и получить 100\% не прокатит, nbgrader восстановит ячейку и проверит код. Именно поэтому тесты и решения пишутся в разных ячейках: тесты также обладают функциями ячейки Read-only. 
 \subsubsection{Manually graded task}
 
-Задания, требующие индивидуальнной проверки учителем каждого ученика и нескольких ячеек, например \grqqприведите графики, придумайте тесты, хорошо показывающие недостатки модели\grqq. В самой ячейке вводится только текст задания, ученик (наверное?) создаст новые ячейки, в которых выполнит задание.
-Для этого типа ячеек можно добавить решение в бракетах === BEGIN MARK SCHEME === ... === END MARK SCHEME ===,
-например, для облегчения работы ассистентам. Эта часть будет скрыта от студента.
+Этот тип ячеек, как правило, содержит описание задачи, которую должны выполнить учащиеся.
+
+Главное отличие от Manually graded answer заключается в том, что Manually graded task неизменяемы для студента. 
+
+Обычно этот тип ячеек используется для задач, требующих от учащегося \textit{создания} нескольких ячеек.
+
 
 \subsubsection{Manually graded answer}
 
-Задания, требующие индивидуальнной проверки учителем каждого ученика, например \grqqобъясните эффект\grqq или \grqqнапишите формулу\grqq. Выполняются в той же ячейке.
-\paragraph{Важно}Сам текст задания нужно писать в другой ячейке, вида Read only, так как содержимое Manually graded answer ячеек nbgrader заменит на фразу YOUR ANSWER HERE в версии студента.
+Задания, требующие ручной проверки учителем. 
+
+Наиболее распространенным вариантом использования этого типа ячеек являются письменные ответы, например, которые интерпретируют результаты кода, который был выполнен выше.
+
+\paragraph{Важно}Сам текст задания нужно писать в другой ячейке, вида Read only, так как содержимое Manually graded answer ячеек nbgrader заменит на фразу YOUR ANSWER HERE в версии для релиза.
 
 \subsubsection{Autograded answer}
 
@@ -167,7 +206,7 @@ v
 
 Для командной строки существует команда nbgrader validate assignment\underline{ }id. Однако чтобы проверить нужный ноутбук, нужно указать его адрес относительно корневой папки курса.
 \begin{verbatim}
-nbgrader validate source/assigment_id/problem_id.ipynb
+nbgrader validate source/assignment_id/problem_id.ipynb
 \end{verbatim}
 \subsection{Generate}
 
@@ -181,31 +220,42 @@ nbgrader validate source/assigment_id/problem_id.ipynb
 Для того чтобы увидеть версию для релиза, можно нажать на значок лупы в строчке с соответствующим заданием во вкдадке formgrader.
 \subsubsection{Командная строка}
 
-Для командной строки существует функция nbgrader generate assignment\underline{ }id.
+Для командной строки существует функция 
+\begin{verbatim}
+nbgrader generate_assignment  assignment_id
+\end{verbatim}
+
 Перед использованием команды убедитесь, что нужный ноутбук лежит по адресу 
 \begin{verbatim}
 {course_directory}/source/{assignment_id}/{notebook_id}.ipynb
 \end{verbatim}
+
 Сгенерированное задание будет лежать по адресу
 \begin{verbatim}
 {course_directory}/release/{assignment_id}/{notebook_id}.ipynb
 \end{verbatim}
+
 В результате папки source и release будут аналогичны по структуре, только в первой будут лежать ноутбуки преподавателя, с решениями и тестами, а во второй -- те же файлы, но зацензурированные, для учеников.
 
 Если вы хотите проверить через командную строку, что ваши действительно спрятаны в версии для студента, можно использовать команду
 \begin{verbatim}
 nbgrader validate --invert release/{assignment_id}/{notebook_id}.ipynb
 \end{verbatim}
+
 Если все хорошо, то есть файл на месте, и все тесты обвалились, вывод будет следующим:
 \grqq Success! The notebook does not pass any tests\grqq
+
 \subsection{Публикация}
 
 При работе локально релиз происходит так: по адресу(про него в 4.5.0) nbgrader создает папку с названием курса(папку для обмена), а в ней две директории: outbond для релиза и inbond для сбора(о ней в разделе 4.6). \\То есть результат действия \grqqпубликация задания\grqq -- это перемещение ноутбуков, соответствующих этому заданию в папку outbond из папки course\underline{ }directory/release.
 Папка outbond по организации и содержанию выглядит точно так же, как и release в папке курса, однако находится не в папке курса. (По факту папка курса должна быть доступна только учителю, а outbond расшарена ученикам).
 
 Для работы с сервером таких проблем нет.
-\subsubsection{Папка exchange}
-В файле get\underline{ }config.py можно вписать адрес папки для обмена между студентами и преподавателем:
+
+\subsubsection{Папка exchange}\label{exchange}
+
+Необходима для взаимодействия со студентами (см. \ref{exchange_why})
+В файле get\_config.py можно вписать адрес папки для обмена между студентами и преподавателем:
 \begin{verbatim}
 c = get_config()
 
@@ -214,7 +264,11 @@ c.Exchange.root = "/tmp/exchange" например
 \end{verbatim}
 В последней строке вписываем путь к папке обмена, которая уже должна существовать и все пользователи дожны иметь право изменять/удалять/создавать файлы.
 Кнопка release во вкладке formgrader перемещает ноутбуки по этому адресу. Если ничего не указывать, адрес папки обмена:
-\begin{verbatim} /srv/nbgrader/exchange/course_id/outbound/ \end{verbatim}
+
+\begin{verbatim} 
+/srv/nbgrader/exchange/course_id/outbound/ 
+\end{verbatim}
+
 \subsubsection{Formgrader}
 
 Тут снова все просто: в вкладке formgrader нужно нажать на значок в виде облака для релиза, и на крестик для того, чтобы релиз отменить. 
@@ -233,16 +287,33 @@ c.Exchange.root = "/tmp/exchange" например
 /\{student\underline{ }id+assignment\underline{ }id+timestamp\}/.ipynb
 \\Пример: 
 \begin{verbatim}
-/tmp/exchange/TestCourse/inbound/vivanov+quadratic+2020-04-18 17:50:45.884871 UTC/
-/quadratic_exercise.ipynb
+/tmp/exchange/TestCourse/inbound/vivanov+quadratic+2020-04-18 17:50:45.884871
+UTC/quadratic_exercise.ipynb
 \end{verbatim}
-\paragraph{Проблема}Я пока не нашла способа избежать такой сложной структуры, так как она создается nbgrader'ом, когда студенты отсылают свои решения. Возможно он есть. Если изменить имя папки, функция collect работать не будет.
+\paragraph{Проблема}
+
+Nbgrader требует именно такой структцры и таких названий у папок. Для того, чтобы воссоздать submit со стороны студента (в случае, если у него nbgrader не установлен), нужно использовать скрипт submit\_homeworks\_script.py. Его аргументами являются: 
+
+\begin{enumerate}
+    \item Адрес папки (\{source\_path\}), в которой находятся работы студентов в формате {assignment\_id}\_\{student\_id\}.ipynb, относящиеся к одному заданию(assignment\_id)
+    \item Адрес папки exchange/\{course\_id\}/inbound. Скрипт создаст в ней директории с названиями, описаными выше, переименует файлы в {assignment\_id}.ipynb и размеситит по соответствующим адресам
+\end{enumerate}
+
+\begin{verbatim}
+    python3 submit_homeworks_script.py {source_path} {destination_path}
+\end{verbatim}
 \subsubsection{Formgrader}
 
-во вкладке formgrader в столбике \#submissions будет указано количество решений. Для того, чтобы их \grqqзабрать\grqq, надо нажать на облачко в графе collect.
+во вкладке formgrader в столбике \#submissions будет указано количество решений. 
+
+\includegraphics[width=0.8\textwidth]{manage_assignments4}
+
+Для того, чтобы их \grqqзабрать\grqq, надо нажать на облачко в графе collect.
+
 \subsubsection{Командная строка}
 
-Функция nbgrader collect 
+Функция nbgrader collect {assignment\_id}
+
 \subsection{Проверка}
 
 \subsubsection{Автопроверка}
@@ -253,38 +324,54 @@ c.Exchange.root = "/tmp/exchange" например
 Если есть задания, требующие проверки вручную, вам об этом напомнит статус задания. Чтобы выполнить проверку, нужно выбрать вкладку Manual Grading слева в форме formgrader. Далее нажать на задание, затем на ноутбук,и щелкнуть на первую работу из сданных. Откоется окно, в котором около кажно из ячеек можно выбрать количество баллов, в том числе изменить оценку, выставленную nbgrader автоматически. Сверху есть две вкладки ← Prev и Next → , с помощью которых можно переключаться между ноутбуками учеников.
 \subsection{Feedback}
 
-С формированием фидбэка все просто: после проверки задания во вкладке formgrader нужно нажать на значок письма во вкладке Generate Feedback. В корневой папке, по адресу /feedback/\{student\_id\}/\{assignment\_id\}/ будет лежать фидбэк в формате .html
-А вот с отправкой фидбэка есть проблемы. Из-за отсутствия таймстэмпов(см) nbgrader отказывается перемещать файлы в обменную папку. Пока что есть два варианта решения: либо руками копировать папку фидбэк в обменную папку (а точнее exchange/\{course\_id\}/feedback), либо создавать таймстэмпы вручную, но я пока не знаю, как)
+Создание фидбека:
+
+\subsubsection{Formgrader}
+
+После проверки задания во вкладке formgrader нужно нажать на значок письма во вкладке Generate Feedback. В корневой папке, по адресу /feedback/\{student\_id\}/\{assignment\_id\}/ будет лежать фидбэк в формате .html
+\subsubsection{Командная строка}
+
+Команда $nbgrader generate\_feedback$
+
+Отправка фидбека:
+
+
+!!! Возможно нужен отдельный скрипт
+
+\subsubsection{Командная строка}
+
+Команда $nbgrader\ release\_feedback$
+
 \section{Работа с базой данных}
 
 \subsection{Удаление задания}
 1. Unrelease 
 \begin{verbatim}
-nbgrader list --remove <assignment_name>
+nbgrader list --remove {assignment_id}
 \end{verbatim}
 2. База данных 
 \begin{verbatim}
-nbgrader db assignment remove <assignment_name>
+nbgrader db assignment remove  {assignment_id} --force 
 \end{verbatim}
 3. Чистим папку с релизами
 \begin{verbatim}
-rm -r release/<assignment_name>
+rm -r release/ {assignment_id}
 \end{verbatim}
 4. Удаляем директорию 
 \begin{verbatim}
-rm -r source/<assignment_name>
+rm -r source/ {assignment_id}
 \end{verbatim}
 5. Удаляем папку с заданием
 \begin{verbatim}
-rm -r submitted/*/<assignment_name>
+rm -r submitted/*/ {assignment_id}
 \end{verbatim}
 6. Удаляем результаты проверки
 \begin{verbatim}
-rm -r autograded/*/<assignment_name>
+rm -r autograded/*/ {assignment_id}
 \end{verbatim}
 7. Удаляем фидбэки
 \begin{verbatim}
-rm -r feedback/*/<assignment_name>
+rm -r feedback/*/ {assignment_id}
 \end{verbatim}
 \subsection{Студенты}
 
@@ -318,7 +405,7 @@ nbgrader db student add vivanov --last-name=Ivanov --first-name=Vovochka #add st
 
 Для работы с сервером не нужно устанавливать локально ничего, достаточно иметь доступ к публичному ip. Для сервера есть 3 разные роли: администратор, учитель(grader) и студент.
 
-\subsection{Админ}
+\subsection{Админ C} 
 \subsubsection{Начало работы}
 Для правильной работы сервера нужно разместить 3 файла nbgrader\_config.py:
 
@@ -458,11 +545,13 @@ c.Spawner.notebook_dir = '~/notebooks'
 
 \section{Random useful things}
 
-\paragraph{}
 Обычно все неожиданные ошибки связаны с тем, что nbgrader ожидает что-то увидеть в корневой папке, и не этого там нет.
-\paragraph{Сторона студента(Только еслии у них nbgrader стоит)}
-Чтобы студенты ничего не поломали, у них должна стоять 3 и выше версия питона и Jupyter.
-Чтобы обрабатывать эту ошибку, создатели nbgrader советуют добавлять в каждый ноутбук ячейку
+
+\paragraph{Технические требования к студентам}
+Для работы со сторонним облаком вроде Dropbox студенты и учитель должны поставить nbgrader локально. "Студенческая" версия ставится в две строчки и требует только анаконду и питон версии не ниже 3. Можно установить на почти любую операционную систему, но как показала практика, не на 32-битную.
+
+Чтобы обрабатывать эту ошибку, создатели nbgrader советуют добавлять в каждый ноутбук такую ячейку:
+
 \begin{verbatim} 
 import IPython
 assert IPython.version_info[0] >= 3,
