@@ -1,0 +1,4 @@
+jupyterhub смена пароля
+sudo tljh-config set <property-path> <value>
+ovh S1-4 model under Shared resources 4GB RAM, 1 vCores and 20GB SSD.
+Не забывать делать reload после изменения tljh-config
