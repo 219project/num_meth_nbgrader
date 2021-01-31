@@ -37,7 +37,7 @@ def move_assignment(source_path, destination_path):
             initial_path = source_path + '/' + name + '.' + formatt
             timestamp = make_timestamp(initial_path)
 
-            dir_name = destination_path + '/' + student_id + '+' + assignment_id + '+' + timestamp
+            dir_name = destination_path + '/' + student_id + '+' + notebook_id + '+' + timestamp
 
             final_path = dir_name + '/' + notebook_id + '.' + formatt
 
