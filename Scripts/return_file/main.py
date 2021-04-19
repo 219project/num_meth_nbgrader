@@ -2,6 +2,9 @@ from __future__ import print_function
 import pickle
 import os.path
 import params
+import pandas as pnd
+import numpy as np
+
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -64,7 +67,7 @@ def get_coursework(service, course_id, name):  # coursework_id
         return 404, None
     else:
         print('Courseworks:')
-        # print(cv)
+        #print(cv)
         for i in cv:
             if i['title'].casefold() == name.casefold():
                 coursework_id = i['id']
@@ -184,38 +187,55 @@ course_id = get_courses(service, params.course_name, params.teacher_mail)
 # ищем assignment и id папки с файлами
 coursework_id, folder_id = get_coursework(service, course_id, params.assignment_name)
 
+
 if coursework_id != 404 and folder_id is not None:
     # ищем работу студента
-    submission_id = get_submissions(service, course_id, coursework_id, params.student_mail)
 
-    if submission_id != 404:
-        # берём название файла студента и грейд-файла 
-        student_file = params.student_file
-        grade_file = params.grade_file
-        print(drive_service, student_file, folder_id)
-        if search_file(drive_service, student_file, folder_id) != 404:
-            print('Student file found. Attaching grade file... \n')
-            # ищем id грейд-файла
-            grade_file_id = search_file(drive_service, grade_file, folder_id)
+    #Список студентов сдавших задание
+    students = np.loadtxt('students.csv', dtype='str')
+    #Список студент:оценка(могут быть лишние студенты)
+    students_and_grades = pnd.read_csv('grades.csv')
+    students_and_grades = students_and_grades[students_and_grades['assignment']==params.grade_name]
+    students_dict = pnd.Series(students_and_grades.raw_score.values, index=students_and_grades.student_id).to_dict()
+    print(students_dict)
+    
 
-            if grade_file_id != 404:
-                # добавляем грейд-файл
-                add_file(service, course_id, coursework_id, submission_id, grade_file_id)
+    for student in students:
+        print('Student', student)
+        if student in students_dict.keys():
+            print('Homework is found')
+            submission_id = get_submissions(service, course_id, coursework_id, student+'@miem.hse.ru')
 
-                # ставим оценку!!! доделать
-                score = 10 # надо брать из таблицы, пока всем 10
-                grade(service, course_id, coursework_id, submission_id, score)
+            if submission_id != 404:
+                # берём название файла студента и грейд-файла 
+                student_file = params.grade_name+'_'+student+'.ipynb'
+                grade_file = params.grade_name+'_'+student+'.html'
+                print('Here', drive_service, student_file, folder_id)
+                if search_file(drive_service, student_file, folder_id) != 404:
+                    print('Student file found. Attaching grade file... \n')
+                    # ищем id грейд-файла
+                    grade_file_id = search_file(drive_service, grade_file, folder_id)
 
-                # возвращаем задание
-                return_submission(service, course_id, coursework_id, submission_id)
-                print('Done. \n')
+                    if grade_file_id != 404:
+                        # добавляем грейд-файл
+                        add_file(service, course_id, coursework_id, submission_id, grade_file_id)
 
+                        # ставим оценку!!!
+                        score = students_dict[student] # надо брать из таблицы, пока всем 10
+                        grade(service, course_id, coursework_id, submission_id, score)
+
+                        # возвращаем задание
+                        return_submission(service, course_id, coursework_id, submission_id)
+                        print('Done. \n')
+
+                    else:
+                        print('Error. Grade file not found. \n')
+                else:
+                    print('Error. Student file not found. ')
             else:
-                print('Error. Grade file not found. \n')
+                print('Error. Student submission not found. ')
         else:
-            print('Error. Student file not found. ')
-    else:
-        print('Error. Student submission not found. ')
+            print('Homework is not found')
 else:
     print('Error. Assignment name invalid or folder not found.  \n')
 

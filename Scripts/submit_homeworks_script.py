@@ -4,42 +4,60 @@
 from time import gmtime, strftime
 import os
 import sys
+import numpy as np
+
+### DEBUG only
+DEBUG = False
+if DEBUG:
+    os.system = print
+
 
 def make_timestamp(source_path):    
         timestamp = strftime("%Y-%m-%d %H:%M:%S UTC", gmtime(os.path.getctime(source_path)))
         return timestamp
     
-def move_assignment(source_path, destination_path):
+def move_assignment(source_path, destination_path, notebook_id):
+    #Making log file
+    os.system('touch unknown_soldiers.csv')
+    soldiers = []
+    
     source_list = os.listdir(source_path)
     print('Found files:', len(source_list))
     
+    
     benefit_dir = 0
     benefit_files = 0
-    
-    for file in source_list:
-        print('File', file, ':')
+    moved_files = {}
+    students_list = []
+
+    for fname in source_list:
+      
+        print('File', fname, ':')
+        
+        
         assignment_id = os.path.basename(source_path)
         
-        name, formatt = file[:file.rfind('.')], file[file.rfind('.')+1:]#separate format
+        # separate format
+        name, formatt = fname[:fname.rfind('.')], fname[fname.rfind('.'):].strip()
         
-        if formatt != 'ipynb':
+        if formatt != '.ipynb':
             print(formatt , 'is inappropriate format. Expected .ipynb')
             
         elif name.find('(')!=-1:
             print('It is not the last commit. Skipping this file')
         
         else:
-            os.rename(source_path+ '/' +file, source_path+"/"+name.strip('\ ')+'.'+formatt)#delete spases in the end
-            name = name.strip('\ ')
-
-            notebook_id, student_id = name[:name.find('_')], name[name.find('_')+1:]#separate notebook_id
-
-            initial_path = source_path + '/' + name + '.' + formatt
+            
+            # separate notebook_id
+            student_id = name[name.rfind(notebook_id+'_')+len(notebook_id)+1:]
+            students_list.append(student_id)
+            print('name', name, 'notebook_id', notebook_id, 'student_id', student_id)
+            initial_path = os.path.join(source_path, fname)
             timestamp = make_timestamp(initial_path)
 
-            dir_name = destination_path + '/' + student_id + '+' + notebook_id + '+' + timestamp
+            dir_name = os.path.join(destination_path, student_id + '+' + notebook_id + '+' + timestamp)
 
-            final_path = dir_name + '/' + notebook_id + '.' + formatt
+            final_path = os.path.join(dir_name, notebook_id + formatt)
 
             os.system('mkdir ' + '"' + dir_name + '"' )
 
@@ -47,14 +65,25 @@ def move_assignment(source_path, destination_path):
                 print('Made directory', dir_name)
                 benefit_dir+=1
 
-            os.system('mv ' + initial_path + ' "' + final_path + '"')
-
+            os.system('cp ' + initial_path.replace(' ', '\ ') + ' "' + final_path + '"')
+            
             if os.path.exists(final_path):
-                print('File', file, 'successfully moved to', final_path)
+                print('File', fname, 'successfully copied to', final_path)
                 benefit_files+=1
+            else:
+                print('File', fname, "caused problems and wasn't copied")
+                soldiers.append(student_id)
+                
+                
+            moved_files[student_id] = final_path
+            
     print('Done')
     print('Made directories:', benefit_dir)
-    print('Moved files:', benefit_files)
-    
+    print('Copied files:', benefit_files)
+    np.savetxt("unknown_soldiers.csv", soldiers)
+    print('Students:' , np.array(students_list))
+    np.savetxt('students.csv', np.array(students_list),  fmt='%.20s')
+    return moved_files
 
-move_assignment(sys.argv[1], sys.argv[2])
+if __name__ == "__main__":
+    move_assignment(sys.argv[1], sys.argv[2], sys.argv[3])
