@@ -40,16 +40,18 @@ def move_assignment(source_path, destination_path, notebook_id):
         # separate format
         name, formatt = fname[:fname.rfind('.')], fname[fname.rfind('.'):].strip()
         
+        # separate notebook_id
+        student_id = name[name.rfind(notebook_id+'_')+len(notebook_id)+1:]
+        
         if formatt != '.ipynb':
             print(formatt , 'is inappropriate format. Expected .ipynb')
+            print('File', fname, "caused problems and wasn't copied")
+            soldiers.append(student_id)
             
         elif name.find('(')!=-1:
             print('It is not the last commit. Skipping this file')
         
         else:
-            
-            # separate notebook_id
-            student_id = name[name.rfind(notebook_id+'_')+len(notebook_id)+1:]
             students_list.append(student_id)
             print('name', name, 'notebook_id', notebook_id, 'student_id', student_id)
             initial_path = os.path.join(source_path, fname)
@@ -80,7 +82,7 @@ def move_assignment(source_path, destination_path, notebook_id):
     print('Done')
     print('Made directories:', benefit_dir)
     print('Copied files:', benefit_files)
-    np.savetxt("unknown_soldiers.csv", soldiers)
+    np.savetxt('unknown_soldiers.csv', np.array(soldiers), fmt='%.20s')
     print('Students:' , np.array(students_list))
     np.savetxt('students.csv', np.array(students_list),  fmt='%.20s')
     return moved_files

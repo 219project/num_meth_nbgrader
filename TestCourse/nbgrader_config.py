@@ -8,7 +8,7 @@ c = get_config()
 # You only need this if you are running nbgrader on a shared
 # server set up.
 c.CourseDirectory.course_id = "TestCourse"
-c.Exchange.root = "/srv/nbgrader/exchange"
+c.Exchange.root = "/home/polina/num_meth_nbgrader/exchange"
 # Update this list with other assignments you want
 c.CourseDirectory.db_assignments = [
     dict(name="quadratic"), dict(name="Numpy"), dict(name="Newton_fixed_pt"), dict(name="Monte_Carlo"), dict(name="LU_pivoting"), dict(name="Jacobi_Seidel"), dict(name="IVP_ODE"), dict(name="Interp_approx"), dict(name="Householder_QR"), dict(name="Calculus"), dict(name="Advanced_integrals")
