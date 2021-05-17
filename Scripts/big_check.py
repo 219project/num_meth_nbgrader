@@ -71,16 +71,24 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
                     benefit_dir += 1
 
                 filename = os.path.join(dir_name, f'{notebook_id}_{student_id}.{file_extension}')
-                fh = io.FileIO(filename, mode='wb')
-                MediaIoBaseDownload(fh, request)
+                fh = open(filename, mode='wb')
+                downloader = MediaIoBaseDownload(fh, request)
+
+                done = False
+                while done is False:
+                    status, done = downloader.next_chunk()
+                    print('Downloaded')
 
                 if os.path.exists(filename):
                     logging.info(f'downloaded: {filename}')
                     moved_files[student_id] = filename
                     benefit_files += 1
+                    students_list.append(student_id)
                 else:
                     logging.warning(f'not downloaded: {filename}')
                     soldiers.append(student_id)
+
+        break
 
     logging.info(f'Made {benefit_dir} directories')
     logging.info(f'Copied {benefit_files} files')
@@ -92,7 +100,10 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
 def run_nbgrader(assignment_id, course_id):
     commands = f"""
     cd {course_id}
-    nbgrader generate_assignment *assignment_id*
+    """
+
+    
+    f"cd {course_id}; nbgrader generate_assignment *assignment_id*"
     nbgrader release_assignment *assignment_id*
     nbgrader collect *assignment_id* Теперь файлы студентов лежат в папке submitted
     nbgrader autograde *assignment_id* Процесс долгий, минут 10
@@ -103,8 +114,8 @@ def run_nbgrader(assignment_id, course_id):
     subprocess.run(commands, shell=True, capture_output=True)
     
 
-download_from_assignment(course_name='лёша', 
-                         task_name='test', 
+download_from_assignment(course_name='Численные методы 2020-2021', 
+                         task_name='Задание А 10 : автопроверка [ode_ivp]', 
                          service_mail='onlineeducation@miem.hse.ru', 
-                         course_id='testcourse', 
+                         course_id='testcourse1', 
                          notebook_id='testnotebook')
