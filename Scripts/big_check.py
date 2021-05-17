@@ -16,7 +16,7 @@ from googleapiclient.http import MediaIoBaseDownload
 logging.info('Начинаем проверку заданий\n')
 
 
-def download_from_assignment(course_name, task_name, service_mail, course_id, notebook_id):
+def download_from_assignment(course_name, task_name, service_mail, course_id, assignment_id, notebook_id):
     """
     скачивает все прикреплённые студентами задания
     в папку exchange/*course_id*/inbound
@@ -65,18 +65,18 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
             else:
                 request = drive_service.files().get_media(fileId=s.get('file_id'))
 
-                dir_name = f'exchange/{course_id}/inbound/{student_id}+{notebook_id}+{s.get("timestamp")}'
+                dir_name = f'exchange/{course_id}/inbound/{student_id}+{assignment_id}+{s.get("timestamp")}'
                 if not os.path.isdir(dir_name):
                     os.makedirs(dir_name)
                     benefit_dir += 1
 
-                filename = os.path.join(dir_name, f'{notebook_id}_{student_id}.{file_extension}')
+                filename = os.path.join(dir_name, f'{notebook_id}.{file_extension}')
                 fh = open(filename, mode='wb')
                 downloader = MediaIoBaseDownload(fh, request)
 
                 done = False
                 while done is False:
-                    status, done = downloader.next_chunk()
+                    done = downloader.next_chunk()
                     print('Downloaded')
 
                 if os.path.exists(filename):
