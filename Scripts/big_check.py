@@ -98,7 +98,7 @@ def run_nbgrader(assignment_id, course_id):
     f"cd {course_id}; nbgrader generate_feedback {assignment_id}"]
     for i in commands:
         s = subprocess.run(i, shell=True, capture_output=True)
-        logging.info(f"{i} \n {s.stderr.decode('ascii')}")
+        logging.info(f"{i} \n{s.stderr.decode('ascii')}")
 
 # download_from_assignment(course_name='Численные методы 2020-2021', 
                         #  task_name='Задание А 10 : автопроверка [ode_ivp]', 
