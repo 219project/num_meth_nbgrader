@@ -102,7 +102,8 @@ def run_nbgrader(assignment_id, course_id):
     f"cd {course_id}; nbgrader release_assignment {assignment_id}",
     f"cd {course_id}; nbgrader collect {assignment_id} # Теперь файлы студентов лежат в папке submitted",
     f"cd {course_id}; nbgrader autograde {assignment_id} # Процесс долгий, минут 10",
-    f"cd {course_id}; nbgrader generate_feedback {assignment_id}"]
+    f"cd {course_id}; nbgrader generate_feedback {assignment_id}",
+    f"cd {course_id}; nbgrader export"    ]
     for i in commands:
         s = subprocess.run(i, shell=True, capture_output=True)
         logging.info(f"{i} \n{s.stderr.decode('ascii')}")
@@ -113,4 +114,3 @@ def run_nbgrader(assignment_id, course_id):
                         #  course_id='TestCourse1', 
                         #  notebook_id='newton_iter')
 
-run_nbgrader('ODE_IVP', 'TestCourse')
