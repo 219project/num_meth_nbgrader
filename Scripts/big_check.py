@@ -1,15 +1,19 @@
+"""
+запускать из корня репозитория
+"""
+
 import logging
 import io
 import os
-logging.basicConfig(filename='Scripts/log.txt', level=logging.DEBUG, filemode='w', format='%(asctime)s : %(levelname)s : %(message)s')
+import subprocess
+import numpy as np
+logging.basicConfig(filename='Scripts/log.txt', level=logging.INFO, filemode='w', format='%(asctime)s : %(levelname)s : %(message)s')
 
-# скрипт для проверки заданий
 from src.drive_api import Drive
 from src.classroom_api import Classroom
-
 from googleapiclient.http import MediaIoBaseDownload
 
-print('Начинаем проверку заданий\n')
+logging.info('Начинаем проверку заданий\n')
 
 
 def download_from_assignment(course_name, task_name, service_mail, course_id, notebook_id):
@@ -28,25 +32,79 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
     drive_service = Drive.create_service()
     classroom_service = Classroom.create_service()
 
-    logging.debug(f'course_name: {course_name} \ntask_name: {task_name} \nservice_mail: {service_mail} \ncourse_id: {course_id} \nnotebook_id: {notebook_id}')
+    logging.info(f'course_name: {course_name} \ntask_name: {task_name} \nservice_mail: {service_mail} \ncourse_id: {course_id} \nnotebook_id: {notebook_id}')
 
-    course_id = Classroom.get_courses(classroom_service, course_name, service_mail)
-    coursework_id = Classroom.get_coursework(classroom_service, task_name, course_id)
-    submissions = Classroom.get_submissions(classroom_service, coursework_id, course_id)
+    classroom_course_id = Classroom.get_courses(classroom_service, course_name, service_mail)
+    coursework_id = Classroom.get_coursework(classroom_service, task_name, classroom_course_id)
+    submissions = Classroom.get_submissions(classroom_service, coursework_id, classroom_course_id)
+
+    logging.debug(f'we are here: {os.getcwd()}')
+
+    soldiers = []
+    benefit_dir = 0
+    benefit_files = 0
+    moved_files = {}
+    students_list = []    
 
     for s in submissions:
 
-        request = drive_service.files().get_media(fileId=s.get('file_id'))
-        user_name = s.get('user_email').split('@')[0]  # префикс почты студента
-        logging.debug(f'we are here: {os.getcwd()}')
+        if not s.get('timestamp'):
+            logging.warning(f'no history: {s}')
+        elif not s.get('user_email') or '@' not in s.get('user_email'):
+            logging.warning(f'invalid mail: {s}')
+        elif not s.get('file_id'):
+            logging.warning(f'invalid file: {s}')
+        else:
+            file_extension = s.get("file_name").split(".")[-1]
+            student_id = s.get('user_email').split('@')[0]  # префикс почты студента
+            
+            if file_extension != 'ipynb':  # extension
+                logging.warning(f'invalid extension {s.get("file_name").split(".")[-1]}, expected .ipynb: {s}')
+                soldiers.append(student_id)
 
-        if not os.path.isdir(f'../exchange/{course_id}/inbound'):
-            os.makedirs(f'../exchange/{course_id}/inbound')
-        filename = f'../exchange/{course_id}/inbound/{notebook_id}_{user_name}.{s.get("file_name").split(".")[-1]}'
-        fh = io.FileIO(filename, mode='wb')
-        MediaIoBaseDownload(fh, request)
-        logging.debug(f'downloaded: {filename}')
+            else:
+                request = drive_service.files().get_media(fileId=s.get('file_id'))
+
+                dir_name = f'exchange/{course_id}/inbound/{student_id}+{notebook_id}+{s.get("timestamp")}'
+                if not os.path.isdir(dir_name):
+                    os.makedirs(dir_name)
+                    benefit_dir += 1
+
+                filename = os.path.join(dir_name, f'{notebook_id}_{student_id}.{file_extension}')
+                fh = io.FileIO(filename, mode='wb')
+                MediaIoBaseDownload(fh, request)
+
+                if os.path.exists(filename):
+                    logging.info(f'downloaded: {filename}')
+                    moved_files[student_id] = filename
+                    benefit_files += 1
+                else:
+                    logging.warning(f'not downloaded: {filename}')
+                    soldiers.append(student_id)
+
+    logging.info(f'Made {benefit_dir} directories')
+    logging.info(f'Copied {benefit_files} files')
+    np.savetxt('Scripts/unknown_soldiers.csv', np.array(soldiers), fmt='%.20s')
+    logging.info(f'Students: {np.array(students_list)}')
+    np.savetxt('Scripts/students.csv', np.array(students_list),  fmt='%.20s')
 
 
-download_from_assignment(course_name='лёша', task_name='test', service_mail='onlineeducation@miem.hse.ru', 
-                         course_id='testcourse', notebook_id='testnotebook')
+def run_nbgrader(assignment_id, course_id):
+    commands = f"""
+    cd {course_id}
+    nbgrader generate_assignment *assignment_id*
+    nbgrader release_assignment *assignment_id*
+    nbgrader collect *assignment_id* Теперь файлы студентов лежат в папке submitted
+    nbgrader autograde *assignment_id* Процесс долгий, минут 10
+    nbgrader generate_feedback *assignment_id*
+    nbgrader release_feedback *assignment_id*
+    """
+
+    subprocess.run(commands, shell=True, capture_output=True)
+    
+
+download_from_assignment(course_name='лёша', 
+                         task_name='test', 
+                         service_mail='onlineeducation@miem.hse.ru', 
+                         course_id='testcourse', 
+                         notebook_id='testnotebook')
