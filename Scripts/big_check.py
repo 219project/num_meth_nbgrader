@@ -71,8 +71,13 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
                     benefit_dir += 1
 
                 filename = os.path.join(dir_name, f'{notebook_id}_{student_id}.{file_extension}')
-                fh = io.FileIO(filename, mode='wb')
-                MediaIoBaseDownload(fh, request)
+                fh = open(filename, mode='wb')
+                downloader = MediaIoBaseDownload(fh, request)
+
+                done = False
+                while done is False:
+                    status, done = downloader.next_chunk()
+                    print('Downloaded')
 
                 if os.path.exists(filename):
                     logging.info(f'downloaded: {filename}')
@@ -82,6 +87,8 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
                 else:
                     logging.warning(f'not downloaded: {filename}')
                     soldiers.append(student_id)
+
+        break
 
     logging.info(f'Made {benefit_dir} directories')
     logging.info(f'Copied {benefit_files} files')
