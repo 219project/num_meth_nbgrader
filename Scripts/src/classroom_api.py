@@ -1,6 +1,9 @@
 import pickle, json, logging
 import os.path
 import os
+import datetime
+import time
+import dateutil.parser
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
@@ -69,6 +72,14 @@ class Classroom:
             user_id = s.get('userId')
             user_email = service.userProfiles().get(userId=user_id).execute().get('emailAddress')
             submission_id = s.get('id')
+
+            if s.get('submissionHistory'):
+                for state in s.get('submissionHistory')[::-1]:
+                    if state.get('stateHistory') and state.get('stateHistory').get('state') == 'TURNED_IN':
+                        timestamp = state.get('stateHistory').get('stateTimestamp')
+                        if timestamp:
+                            timestamp = dateutil.parser.isoparse(timestamp).strftime("%Y-%m-%d %H:%M:%S UTC")
+
             if s.get('assignmentSubmission') and s.get('assignmentSubmission').get('attachments') and s.get('assignmentSubmission').get('attachments')[0].get('driveFile'):
                 file = s.get('assignmentSubmission').get('attachments')[0].get('driveFile')
                 file_id = file.get('id')
@@ -81,6 +92,8 @@ class Classroom:
                     'user_email': user_email,
                     'id': submission_id, 
                     'file_id': file_id, 
-                    'file_name': file_name
+                    'file_name': file_name,
+                    'timestamp': timestamp
                 })
         return results
+
