@@ -98,24 +98,19 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, no
 
 
 def run_nbgrader(assignment_id, course_id):
-    commands = f"""
-    cd {course_id}
-    """
+    commands = [f"cd {course_id}; nbgrader generate_assignment {assignment_id}",
+    f"cd {course_id}; nbgrader release_assignment {assignment_id}",
+    f"cd {course_id}; nbgrader collect {assignment_id} # Теперь файлы студентов лежат в папке submitted",
+    f"cd {course_id}; nbgrader autograde {assignment_id} # Процесс долгий, минут 10",
+    f"cd {course_id}; nbgrader generate_feedback {assignment_id}"]
+    for i in commands:
+        s = subprocess.run(i, shell=True, capture_output=True)
+        logging.info(f"{i} \n {s.stderr.decode('ascii')}")
 
-    
-    f"cd {course_id}; nbgrader generate_assignment *assignment_id*"
-    nbgrader release_assignment *assignment_id*
-    nbgrader collect *assignment_id* Теперь файлы студентов лежат в папке submitted
-    nbgrader autograde *assignment_id* Процесс долгий, минут 10
-    nbgrader generate_feedback *assignment_id*
-    nbgrader release_feedback *assignment_id*
-    """
+# download_from_assignment(course_name='Численные методы 2020-2021', 
+                        #  task_name='Задание А 10 : автопроверка [ode_ivp]', 
+                        #  service_mail='pmvinetskaya@miem.hse.ru', 
+                        #  course_id='TestCourse1', 
+                        #  notebook_id='newton_iter')
 
-    subprocess.run(commands, shell=True, capture_output=True)
-    
-
-download_from_assignment(course_name='Численные методы 2020-2021', 
-                         task_name='Задание А 10 : автопроверка [ode_ivp]', 
-                         service_mail='onlineeducation@miem.hse.ru', 
-                         course_id='testcourse1', 
-                         notebook_id='testnotebook')
+run_nbgrader('ODE_IVP', 'TestCourse')
