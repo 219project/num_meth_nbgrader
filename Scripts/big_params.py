@@ -1,7 +1,23 @@
-course_classroom_name = 'лёша'  # название курса в классруме
-task_classroom_name = 'test'  # название задания в классруме
-service_mail = 'pmvinetskaya@miem.hse.ru'  # почта в классруме
-course_id = 'TestCourse'  # имя папки в exchange
-notebook_id = 'ode_ivp'  # имя ноутбука
-assignment_id = 'ODE_IVP'
-log_level = 'INFO'  # уровень логгирования
+# название курса в классруме
+course_classroom_name = 'Численные методы 2020-2021'
+
+# название задания в классруме
+task_classroom_name = 'Задание А 10 : автопроверка [ode_ivp]'  
+
+# почта в классруме
+# service_mail = 'pmvinetskaya@miem.hse.ru'  
+service_mail = 'onlineeducation@miem.hse.ru'  
+
+# имя папки в exchange
+course_id = 'TestCourse2'  
+
+# имя ноутбука перед расширением
+notebook_id = 'ode_ivp'  
+
+ # название задания (в nbgrader)
+assignment_id = 'ODE_IVP' 
+
+# уровень логгирования
+# INFO = 20
+# DEBUG = 10
+log_level = 20

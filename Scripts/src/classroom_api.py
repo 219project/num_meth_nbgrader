@@ -52,14 +52,14 @@ class Classroom:
         return 404
 
     
-    def get_coursework_folder(service, coursework_id, course_id):
+    def get_coursework_folder(service, course_id, coursework_id):
         coursework = service.courses().courseWork().get(courseId=course_id, id=coursework_id).execute()
         logging.debug(f"coursework: {coursework['id'], coursework['title']}")
 
         if coursework.get('assignment'):
             if coursework.get('assignment').get('studentWorkFolder'):
                 logging.debug(f"folder: {coursework.get('assignment').get('studentWorkFolder')}")
-                return coursework.get('assignment').get('studentWorkFolder')
+                return coursework.get('assignment').get('studentWorkFolder').get('id')
 
         return 404
 
@@ -97,3 +97,63 @@ class Classroom:
                 })
         return results
 
+
+    def get_student_submission(service, course_id, coursework_id, user_id):
+        """ Lists all student submissions for a given coursework. """
+
+        response = service.courses().courseWork().studentSubmissions().list(
+            courseId=course_id,
+            courseWorkId=coursework_id,
+            userId=user_id).execute()
+        submissions = response.get('studentSubmissions', [])
+
+        if not submissions:
+            print('No student submissions found.')
+            return 404
+
+        if submissions[0]["state"] == "TURNED_IN":
+            submission_id = submissions[0]['id']
+            logging.debug(f'found submission: {submission_id}')
+            return submission_id
+        print('Error with submissions. Not turned in')
+        return 404
+            
+
+    def add_file(service, course_id, coursework_id, submission_id, file_id):
+
+        print('target: ', course_id, coursework_id, submission_id, file_id)
+        request = {
+            'addAttachments': [{"driveFile": {'id': file_id}}]
+        }
+        coursework = service.courses().courseWork()
+        coursework.studentSubmissions().modifyAttachments(
+            courseId=course_id,
+            courseWorkId=coursework_id,
+            id=submission_id,
+            body=request).execute()
+
+
+    def grade(service, course_id, coursework_id, submission_id, score):
+
+        print('target: ', course_id, coursework_id, submission_id, score)
+        studentSubmission = {
+            'assignedGrade': score,
+            'draftGrade': score
+        }
+        results = service.courses().courseWork().studentSubmissions().patch(
+            courseId=course_id,
+            courseWorkId=coursework_id,
+            id=submission_id,
+            updateMask='assignedGrade,draftGrade',
+            body=studentSubmission).execute()
+
+        
+    def return_submission(service, course_id, coursework_id, submission_id):
+
+        print('target: ', course_id, coursework_id, submission_id)
+        coursework = service.courses().courseWork()
+        coursework.studentSubmissions().return_(
+            courseId=course_id,
+            courseWorkId=coursework_id,
+            id=submission_id,
+            body={}).execute()

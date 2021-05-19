@@ -4,6 +4,7 @@ import os
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from googleapiclient.http import MediaFileUpload
 
 from src.scopes import SCOPES
 
@@ -35,3 +36,16 @@ class Drive:
         copy_file_id = service.files().copy(fileId=file_id, body={'name': f'{name.split(".")[0]}{random.randint(1, 10000)}.{name.split(".")[1]}'}).execute().get('id', [])
         logging.info(f'in classroom_class:find_and_copy - copied {copy_file_id}')
         return copy_file_id
+
+    
+    def upload_html(service, file_name, file_path, folder_id):
+        media = MediaFileUpload(file_path, mimetype='text/html')
+        file = service.files().create(
+            body={
+                'name': file_name, 
+                'parents': [folder_id]
+                },
+                media_body=media,
+                fields='id').execute()
+        file_id = file.get('id')
+        return file_id
