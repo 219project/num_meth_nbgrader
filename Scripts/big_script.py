@@ -1,3 +1,7 @@
+"""
+запускать из корня репозитория
+"""
+
 import logging
 import big_params
 
