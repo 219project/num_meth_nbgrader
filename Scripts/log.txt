@@ -1,0 +1,31 @@
+2021-05-10 16:35:46,067 : DEBUG : лёша
+2021-05-10 16:35:46,069 : DEBUG : URL being requested: GET https://classroom.googleapis.com/v1/courses?teacherId=onlineeducation%40miem.hse.ru&alt=json
+2021-05-10 16:35:46,929 : DEBUG : course found: ('313747476209', 'clas')
+2021-05-10 16:35:46,929 : DEBUG : course found: ('312621996463', 'Название потока/группы + название дисциплины')
+2021-05-10 16:35:46,930 : DEBUG : course found: ('311996470650', 'онлайн урок по классруму')
+2021-05-10 16:35:46,930 : DEBUG : course found: ('312004077107', 'мой супер курс')
+2021-05-10 16:35:46,930 : DEBUG : course found: ('311666053858', 'test37')
+2021-05-10 16:35:46,930 : DEBUG : course found: ('281149520073', 'test36')
+2021-05-10 16:35:46,931 : DEBUG : course found: ('311098184315', 'test36')
+2021-05-10 16:35:46,931 : DEBUG : course found: ('311019960951', 'test35')
+2021-05-10 16:35:46,931 : DEBUG : course found: ('311019273934', 'test34')
+2021-05-10 16:35:46,931 : DEBUG : course found: ('311014987643', 'test33')
+2021-05-10 16:35:46,931 : DEBUG : course found: ('311010797219', 'test32')
+2021-05-10 16:35:46,931 : DEBUG : course found: ('311007449414', 'test31')
+2021-05-10 16:35:46,932 : DEBUG : course found: ('310686962723', 'test2')
+2021-05-10 16:35:46,932 : DEBUG : course found: ('307255596975', 'test20')
+2021-05-10 16:35:46,932 : DEBUG : course found: ('283564043652', 'Стажировка')
+2021-05-10 16:35:46,932 : DEBUG : course found: ('256575402390', 'БИБ202 Дискретная математика')
+2021-05-10 16:35:46,932 : DEBUG : course found: ('254750449834', 'БИВ20х Проектный семинар')
+2021-05-10 16:35:46,932 : DEBUG : course found: ('255299843905', 'лёша')
+2021-05-10 16:35:46,932 : DEBUG : test
+2021-05-10 16:35:46,943 : DEBUG : URL being requested: GET https://classroom.googleapis.com/v1/courses/255299843905/courseWork?alt=json
+2021-05-10 16:35:47,949 : DEBUG : coursework found: ('325303148454', 'ass')
+2021-05-10 16:35:47,949 : DEBUG : coursework found: ('303418097854', 'тест2')
+2021-05-10 16:35:47,949 : DEBUG : coursework found: ('303414474903', 'тест1')
+2021-05-10 16:35:47,949 : DEBUG : coursework found: ('196678599328', '12345')
+2021-05-10 16:35:47,949 : DEBUG : coursework found: ('225035626730', 'test')
+2021-05-10 16:35:47,963 : DEBUG : URL being requested: GET https://classroom.googleapis.com/v1/courses/255299843905/courseWork/225035626730/studentSubmissions?states=TURNED_IN&alt=json
+2021-05-10 16:35:49,072 : DEBUG : URL being requested: GET https://classroom.googleapis.com/v1/userProfiles/113352029695749200252?alt=json
+2021-05-10 16:35:49,791 : DEBUG : submission: user_id 113352029695749200252, user_email asshadrunov@miem.hse.ru id Cg4IupbEp84EEOrRrKnGBg, file_id 14YOK4Z-EQGIfEXG9bycmrmG-UmGO_9KE, file_name hw1_asshadrunov.ipynb
+2021-05-10 16:35:49,807 : DEBUG : URL being requested: GET https://www.googleapis.com/drive/v3/files/14YOK4Z-EQGIfEXG9bycmrmG-UmGO_9KE?alt=media
