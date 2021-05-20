@@ -1,3 +1,7 @@
+"""
+Модуль используется для взаимодействия с Google Classroom
+"""
+
 import pickle, json, logging
 import os.path
 import os
@@ -11,7 +15,16 @@ from google.auth.transport.requests import Request
 from src.scopes import SCOPES
 
 class Classroom:
+    """
+    класс содержит методы для работы с Classroom
+    """
     def create_service():  # service
+        """
+        Метод создаёт сервис classroom -- объект, через который осуществляется взаимодействие.
+        Для этого пользователь должен авторизоваться в Google от лица необходимого аккаунта.
+
+        :return: функция возвращает сервис classroom
+        """
         creds = None
         if os.path.exists('Scripts/src/tocken.pickle'):
             with open('Scripts/src/tocken.pickle', 'rb') as token:
@@ -29,6 +42,19 @@ class Classroom:
 
 
     def get_courses(service, name, teacher_mail):  # course_id
+        """
+        Метод ищет id курса, имя которого передано в аргументах, среди тех курсов, 
+        в которых пользователь является преподавателем.
+
+        :param service: classroom сервис
+        :param name: название курса в classroom
+        :type name: str
+        :param teacher_mail: адрес преподавателя
+        :type teacher_mail: str
+        :return id: функция возвращает id курса, если он найден, или 404
+        :rtype: str
+        """
+    
         results = service.courses().list(teacherId = teacher_mail).execute()
         courses = results.get('courses', [])
 
@@ -44,6 +70,18 @@ class Classroom:
 
     
     def get_coursework(service, name, course_id):
+        """
+        Метод ищет id задания, название которого передано в аргументах, среди заданий курса
+
+        :param service: classroom сервис
+        :param name: название задания в classroom
+        :type name: str
+        :param course_id: id курса
+        :type course_id: str
+        :return id: функция возвращает id задания, если он найден, или 404
+        :rtype: str
+        """
+    
         courseworks = service.courses().courseWork().list(courseId=course_id).execute().get('courseWork', [])
         for c in courseworks:
             logging.debug(f"coursework found: {c['id'], c['title']}")
@@ -53,6 +91,18 @@ class Classroom:
 
     
     def get_coursework_folder(service, course_id, coursework_id):
+        """
+        Метод ищет id папки на Google диске, в котором находятся файлы данного задания
+
+        :param service: classroom сервис
+        :param course_id: id курса
+        :type course_id: str
+        :param coursework_id: id задания
+        :type coursework_id: str
+        :return id: функция возвращает id папки, если он найден, или 404
+        :rtype: str
+        """
+    
         coursework = service.courses().courseWork().get(courseId=course_id, id=coursework_id).execute()
         logging.debug(f"coursework: {coursework['id'], coursework['title']}")
 
@@ -63,7 +113,35 @@ class Classroom:
 
         return 404
 
+
     def get_submissions(service, coursework_id, course_id):
+        """
+        Метод находит все работы, которые сдавались в данное задание, всеми студентами
+
+        :param service: classroom сервис
+        :param coursework_id: id задания
+        :type coursework_id: str
+        :param course_id: id курса
+        :type course_id: str
+        :return: функция возвращает список сдач следующего вида
+
+        .. code-block:: python
+
+            [
+                {
+                    'user_id': id пользователя, 
+                    'user_email': почта пользователя,
+                    'id': id сдачи работы, 
+                    'file_id': id файла, прикреплённого к работе, 
+                    'file_name': название файла,
+                    'timestamp': отметка времени сдачи работы
+                },
+                ...
+            ]
+
+        :rtype: list
+        """
+    
         submissions = service.courses().courseWork().studentSubmissions().list(courseId=course_id, courseWorkId=coursework_id, states='TURNED_IN').execute()
         
         results = []
@@ -99,7 +177,19 @@ class Classroom:
 
 
     def get_student_submission(service, course_id, coursework_id, user_id):
-        """ Lists all student submissions for a given coursework. """
+        """
+        возвращает id сдачи работы определённым студентом
+
+        :param service: classroom сервис
+        :param course_id: id курса
+        :type course_id: str
+        :param coursework_id: id задания
+        :type coursework_id: str
+        :param user_id: почта студента
+        :type user_id: str
+        :return id: функция возвращает id сдачи работы, если он найден, или 404
+        :rtype: str
+        """
 
         response = service.courses().courseWork().studentSubmissions().list(
             courseId=course_id,
@@ -120,6 +210,18 @@ class Classroom:
             
 
     def add_file(service, course_id, coursework_id, submission_id, file_id):
+        """
+        прикрепляет файл с гугл диска к файлам студента
+
+        :param service: classroom сервис
+        :param course_id: id курса
+        :type course_id: str
+        :param coursework_id: id задания
+        :type coursework_id: str
+        :param submission_id: id сдачи работы
+        :type submission_id: str
+        :param file_id: id файла на гугл диске
+        """
 
         print('target: ', course_id, coursework_id, submission_id, file_id)
         request = {
@@ -134,6 +236,18 @@ class Classroom:
 
 
     def grade(service, course_id, coursework_id, submission_id, score):
+        """
+        выставляет оценку за задание студенту
+
+        :param service: classroom сервис
+        :param course_id: id курса
+        :type course_id: str
+        :param coursework_id: id задания
+        :type coursework_id: str
+        :param submission_id: id сдачи работы
+        :type submission_id: str
+        :param score: оценка студента
+        """
 
         print('target: ', course_id, coursework_id, submission_id, score)
         studentSubmission = {
@@ -149,6 +263,17 @@ class Classroom:
 
         
     def return_submission(service, course_id, coursework_id, submission_id):
+        """
+        возвращает работу студенту
+
+        :param service: classroom сервис
+        :param course_id: id курса
+        :type course_id: str
+        :param coursework_id: id задания
+        :type coursework_id: str
+        :param submission_id: id сдачи работы
+        :type submission_id: str
+        """
 
         print('target: ', course_id, coursework_id, submission_id)
         coursework = service.courses().courseWork()
@@ -157,3 +282,5 @@ class Classroom:
             courseWorkId=coursework_id,
             id=submission_id,
             body={}).execute()
+
+

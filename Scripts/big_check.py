@@ -26,7 +26,8 @@ def download_from_assignment(course_name, task_name, service_mail, course_id, as
     :param task_name: название задания в классруме
     :param service_mail: почта сервисного аккаунта в классруме
     :param course_id: для nbgrader: destination_path(это exchange/*course_id*/inbound)
-    :param notebook_id: это часть файла *notebook_id*_pmvinetskaya.py
+    :param assignment_id: эсайнмент: nb_course_id/feedback/префикс_почты/nb_assignment_id/файл.html
+    :param notebook_id: это часть файла *notebook_id*_pmvinetskaya.ipynb
     """
     
     drive_service = Drive.create_service()
